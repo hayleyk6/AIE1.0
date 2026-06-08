@@ -68,7 +68,7 @@ You will compare embeddings for terms like:
 Why is cosine similarity useful for dense vector retrieval?
 
 ##### ✅ Answer:
-
+ Dense vector retrieval is powered by embedding models which convert text into high-dimensional vectors, and cosine similarity helps us measure how closely related these vectors are in meaning.Cosine similarity rationalizes that the smaller the angle between two vectors, the more similar they are in terms of direction, which correlates with semantic similarity in embedding space.
 ---
 
 ## 🏗️ Activity #2: Build the Vector RAG Pipeline
@@ -87,12 +87,29 @@ Run the notebook sections that:
 Why is metadata important for a RAG application?
 
 ##### ✅ Answer:
+A RAG application without metadata can find similar text; however, a RAG application with metadata can find the more relevant and contextually accurate text and prove it. Embeddings tell you which chunks are semantically close to the user query, but the metadata is what helps you understand why those chunks are relevant and filter them based on additional criteria.
 
 #### ❓Question #3
 
 What tradeoff do we make when choosing chunk size and chunk overlap?
 
 ##### ✅ Answer:
+The tradeoffs are between retrieval precision, semantic continuity, and cost. 
+
+Chunk size controls how much context lives in each vector:
+- larger chunk size carry more context but produce blurrier embeddings with less precision
+- smaller chunk size retrieve more precisily but lack the surrounding context needed to answer 
+
+Overlap controls how much each chunk re-includes from its neighbors:
+- more overlap prevents ideas from being split across chunk boundaries but results in duplicate content, costing storage and tokens
+- less overlap keeps the index lean but can drop sentences that span chunk boundaries
+
+
+ The combination of the two is what affects how the document's meaning is partitioned across chunks:
+- Smaller chunks + low overlap: best for answers that live in single sentences. high precision, low recall, low cost
+- Larger chunks + low overlap: low precision, decent recall, low cost. However, vectors are too generic to rank well 
+- Small chunks + high overlap: high precision, high recall, high cost. However, it is expensive and noisy as a result of near-duplicates
+- Large chunks + high overlap: wasteful 
 
 #### ❓Question #4
 
@@ -114,6 +131,9 @@ Run the notebook's vibe check queries and inspect both:
 For the vibe check queries, did the retrieved context seem relevant before generation? Why or why not?
 
 ##### ✅ Answer:
+The retrieved context was relevant for all on-topic queries and weak for the off-topic one. Questions 1-3 that were on-topic questions on health, the top hits came from the right sections of the PDF so we know the embedder is doing its job of mapping different vocabulary into neary vectors. For question four, the retrieval returned irrelevant chunks——which is intended since the system prompt instructs the assistant to respond in this manner for a situation like this. 
+
+One observation to note is that vector retireval doesn't need very high cosine scores to be useful. Rather, what matters is that the relevant chunks rank above the irrelevant ones so the LLM can answer more relevantly.
 
 ---
 
@@ -130,13 +150,13 @@ Document what changed and whether retrieval improved.
 
 ##### Settings Changed:
 
--
+- increase 'k' size from 4 to 6
 
 ##### Results:
 
-1.
-2.
-3.
+1. The additional context resulted in a bullet point change in the result. The additional context included information about behavioral changes in senior cats, which was not present in the original 4-context retrieval.
+2. The additional context also resulted in a more detailed answer, including information about pain assessment and musculoskeletal examination.
+3. The cost of increasing k was a dropped bullet point and a longer prompt. Furthermore, the retrieved context grew from 911 -> 1239 tokens and the full prompt from 1043 -> 1371 tokens. This increase is negligible at the current scale.
 
 ---
 
