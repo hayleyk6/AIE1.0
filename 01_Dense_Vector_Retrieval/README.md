@@ -116,7 +116,7 @@ Overlap controls how much each chunk re-includes from its neighbors:
 What does a similarity score help you understand, and what does it not prove by itself?
 
 ##### ✅ Answer:
-
+The similarity score helps us understand how closely the query and the retrieved chunk align semantically. However, it does not prove the retrieved chunk is relevant to the user's intent or that the answer generated from it is correct.∂∂
 ---
 
 ## 🏗️ Activity #3: Vibe Check Retrieval Quality
